@@ -66,6 +66,14 @@ ol.Tile.prototype.getImage = goog.abstractMethod;
 
 
 /**
+ * Get the features for this tile.
+ * @function
+ * @return {Array.<ol.Feature>} This tile's features.
+ */
+ol.Tile.prototype.getFeatures = goog.abstractMethod;
+
+
+/**
  * @return {string} Key.
  */
 ol.Tile.prototype.getKey = function() {

@@ -57,7 +57,7 @@ ol.featureloader.loadFeaturesXhr = function(url, format, success) {
        * @param {ol.Extent} extent Extent.
        * @param {number} resolution Resolution.
        * @param {ol.proj.Projection} projection Projection.
-       * @this {ol.source.Vector}
+       * @this {ol.source.Vector|ol.VectorTile}
        */
       function(extent, resolution, projection) {
         var xhrIo = new goog.net.XhrIo();
@@ -87,6 +87,8 @@ ol.featureloader.loadFeaturesXhr = function(url, format, success) {
                   if (!goog.isDefAndNotNull(source)) {
                     source = ol.xml.parse(xhrIo.getResponseText());
                   }
+                } else if (type == ol.format.FormatType.ARRAY_BUFFER) {
+                  source = xhrIo.getResponse();
                 } else {
                   goog.asserts.fail('unexpected format type');
                 }
@@ -125,7 +127,7 @@ ol.featureloader.xhr = function(url, format) {
   return ol.featureloader.loadFeaturesXhr(url, format,
       /**
        * @param {Array.<ol.Feature>} features The loaded features.
-       * @this {ol.source.Vector}
+       * @this {ol.source.Vector|ol.VectorTile}
        */
       function(features) {
         this.addFeatures(features);

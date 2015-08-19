@@ -1,10 +1,11 @@
-goog.provide('ol.source.TileImage');
+goog.provide('ol.source.VectorTile');
 
 goog.require('goog.asserts');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
-goog.require('ol.ImageTile');
 goog.require('ol.TileState');
+goog.require('ol.VectorTile');
+goog.require('ol.featureloader');
 goog.require('ol.source.UrlTile');
 
 
@@ -16,10 +17,10 @@ goog.require('ol.source.UrlTile');
  * @constructor
  * @fires ol.source.TileEvent
  * @extends {ol.source.UrlTile}
- * @param {olx.source.TileImageOptions} options Image tile options.
+ * @param {olx.source.VectorTileOptions} options Vector tile options.
  * @api
  */
-ol.source.TileImage = function(options) {
+ol.source.VectorTile = function(options) {
 
   goog.base(this, {
     attributions: options.attributions,
@@ -31,35 +32,33 @@ ol.source.TileImage = function(options) {
         /** @type {ol.source.State} */ (options.state) : undefined,
     tileGrid: options.tileGrid,
     tileLoadFunction: goog.isDef(options.tileLoadFunction) ?
-        options.tileLoadFunction : ol.source.TileImage.defaultTileLoadFunction,
+        options.tileLoadFunction : ol.source.VectorTile.defaultTileLoadFunction,
     tilePixelRatio: options.tilePixelRatio,
-    tileUrlFunction: options.tileUrlFunction,
     wrapX: options.wrapX
   });
 
   /**
-   * @protected
-   * @type {?string}
+   * @private
+   * @type {ol.format.Feature}
    */
-  this.crossOrigin =
-      goog.isDef(options.crossOrigin) ? options.crossOrigin : null;
+  this.format_ = goog.isDef(options.format) ? options.format : null;
 
   /**
    * @protected
-   * @type {function(new: ol.ImageTile, ol.TileCoord, ol.TileState, string,
-   *        ?string, ol.TileLoadFunctionType)}
+   * @type {function(new: ol.VectorTile, ol.TileCoord, ol.TileState, string,
+   *        ol.format.Feature, ol.TileLoadFunctionType)}
    */
   this.tileClass = goog.isDef(options.tileClass) ?
-      options.tileClass : ol.ImageTile;
+      options.tileClass : ol.VectorTile;
 
 };
-goog.inherits(ol.source.TileImage, ol.source.UrlTile);
+goog.inherits(ol.source.VectorTile, ol.source.UrlTile);
 
 
 /**
  * @inheritDoc
  */
-ol.source.TileImage.prototype.getTile =
+ol.source.VectorTile.prototype.getTile =
     function(z, x, y, pixelRatio, projection) {
   var tileCoordKey = this.getKeyZXY(z, x, y);
   if (this.tileCache.containsKey(tileCoordKey)) {
@@ -75,7 +74,7 @@ ol.source.TileImage.prototype.getTile =
         tileCoord,
         goog.isDef(tileUrl) ? ol.TileState.IDLE : ol.TileState.EMPTY,
         goog.isDef(tileUrl) ? tileUrl : '',
-        this.crossOrigin,
+        this.format_,
         this.tileLoadFunction);
     goog.events.listen(tile, goog.events.EventType.CHANGE,
         this.handleTileChange, false, this);
@@ -87,9 +86,9 @@ ol.source.TileImage.prototype.getTile =
 
 
 /**
- * @param {ol.ImageTile} imageTile Image tile.
+ * @param {ol.VectorTile} vectorTile Vector tile.
  * @param {string} src Source.
  */
-ol.source.TileImage.defaultTileLoadFunction = function(imageTile, src) {
-  imageTile.getImage().src = src;
+ol.source.VectorTile.defaultTileLoadFunction = function(vectorTile, src) {
+  vectorTile.setLoader(ol.featureloader.xhr(src, vectorTile.getFormat()));
 };
