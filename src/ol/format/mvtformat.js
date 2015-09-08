@@ -128,6 +128,14 @@ ol.format.MVT.prototype.readFeatures = function(source, opt_options) {
 
 
 /**
+ * @inheritDoc
+ */
+ol.format.MVT.prototype.readProjection = function(source) {
+  return this.defaultDataProjection;
+};
+
+
+/**
  * Sets the layers that features will be read from.
  * @param {Array.<string>} layers Layers.
  * @api

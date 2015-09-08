@@ -76,7 +76,10 @@ ol.ImageTile.prototype.disposeInternal = function() {
 
 
 /**
- * @inheritDoc
+ * Get the image element for this tile.
+ * @param {Object=} opt_context Optional context. Only used by the DOM
+ *     renderer.
+ * @return {Image|HTMLCanvasElement|HTMLImageElement|HTMLVideoElement} Image.
  * @api
  */
 ol.ImageTile.prototype.getImage = function(opt_context) {

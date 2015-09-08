@@ -46,9 +46,9 @@ ol.FeatureUrlFunction;
 /**
  * @param {string|ol.FeatureUrlFunction} url Feature URL service.
  * @param {ol.format.Feature} format Feature format.
- * @param {function(this:ol.source.Vector, Array.<ol.Feature>)} success
- *     Function called with the loaded features. Called with the vector
- *     source as `this`.
+ * @param {function(this:ol.source.Vector, Array.<ol.Feature>, ol.proj.Projection)|function(this:ol.source.Vector, Array.<ol.Feature>)} success
+ *     Function called with the loaded features and optionally with the data
+ *     projection. Called with the vector source as `this`.
  * @return {ol.FeatureLoader} The feature loader.
  */
 ol.featureloader.loadFeaturesXhr = function(url, format, success) {
@@ -61,7 +61,10 @@ ol.featureloader.loadFeaturesXhr = function(url, format, success) {
        */
       function(extent, resolution, projection) {
         var xhrIo = new goog.net.XhrIo();
-        xhrIo.setResponseType(goog.net.XhrIo.ResponseType.TEXT);
+        xhrIo.setResponseType(
+            format.getType() == ol.format.FormatType.ARRAY_BUFFER ?
+                goog.net.XhrIo.ResponseType.ARRAY_BUFFER :
+                goog.net.XhrIo.ResponseType.TEXT);
         goog.events.listen(xhrIo, goog.net.EventType.COMPLETE,
             /**
              * @param {Event} event Event.
@@ -95,7 +98,11 @@ ol.featureloader.loadFeaturesXhr = function(url, format, success) {
                 if (goog.isDefAndNotNull(source)) {
                   var features = format.readFeatures(source,
                       {featureProjection: projection});
-                  success.call(this, features);
+                  if (success.length == 2) {
+                    success.call(this, features, format.readProjection(source));
+                  } else {
+                    success.call(this, features);
+                  }
                 } else {
                   goog.asserts.fail('undefined or null source');
                 }
@@ -110,6 +117,29 @@ ol.featureloader.loadFeaturesXhr = function(url, format, success) {
           xhrIo.send(url);
         }
 
+      });
+};
+
+
+/**
+ * Create an XHR feature loader for a `url` and `format`. The feature loader
+ * loads features (with XHR), parses the features, and adds them to the
+ * vector source.
+ * @param {string|ol.FeatureUrlFunction} url Feature URL service.
+ * @param {ol.format.Feature} format Feature format.
+ * @return {ol.FeatureLoader} The feature loader.
+ * @api
+ */
+ol.featureloader.tile = function(url, format) {
+  return ol.featureloader.loadFeaturesXhr(url, format,
+      /**
+       * @param {Array.<ol.Feature>} features The loaded features.
+       * @param {ol.proj.Projection} projection Feature projection.
+       * @this {ol.source.Vector|ol.VectorTile}
+       */
+      function(features, projection) {
+        this.setProjection(projection);
+        this.setFeatures(features);
       });
 };
 

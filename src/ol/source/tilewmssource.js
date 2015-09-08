@@ -48,7 +48,7 @@ ol.source.TileWMS = function(opt_options) {
     projection: options.projection,
     tileGrid: options.tileGrid,
     tileLoadFunction: options.tileLoadFunction,
-    tileUrlFunction: goog.bind(this.tileUrlFunction, this),
+    tileUrlFunction: goog.bind(this.tileUrlFunction_, this),
     wrapX: goog.isDef(options.wrapX) ? options.wrapX : true
   });
 
@@ -360,9 +360,9 @@ ol.source.TileWMS.prototype.setUrls = function(urls) {
  * @param {number} pixelRatio Pixel ratio.
  * @param {ol.proj.Projection} projection Projection.
  * @return {string|undefined} Tile URL.
- * @protected
+ * @private
  */
-ol.source.TileWMS.prototype.tileUrlFunction =
+ol.source.TileWMS.prototype.tileUrlFunction_ =
     function(tileCoord, pixelRatio, projection) {
 
   var tileGrid = this.getTileGrid();

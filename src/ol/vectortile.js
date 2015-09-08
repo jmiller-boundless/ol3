@@ -1,10 +1,19 @@
 goog.provide('ol.VectorTile');
 
-goog.require('goog.array');
 goog.require('ol.Tile');
 goog.require('ol.TileCoord');
 goog.require('ol.TileLoadFunctionType');
 goog.require('ol.TileState');
+
+
+/**
+ * @typedef {{dirty: boolean,
+ *     renderedRenderOrder: (null|function(ol.Feature, ol.Feature):number),
+ *     renderedRevision: number,
+ *     renderedResolution: number,
+ *     replayGroup: ol.render.IReplayGroup}}
+ */
+ol.TileReplayState;
 
 
 
@@ -35,9 +44,39 @@ ol.VectorTile = function(tileCoord, state, src, format, tileLoadFunction) {
 
   /**
    * @private
+   * @type {ol.FeatureLoader}
+   */
+  this.loader_;
+
+  /**
+   * @private
+   * @type {ol.proj.Projection}
+   */
+  this.projection_ = null;
+
+  /**
+   * @private
+   * @type {ol.TileReplayState}
+   */
+  this.replayState_ = {
+    dirty: true,
+    renderedRenderOrder: null,
+    renderedRevision: -1,
+    renderedResolution: NaN,
+    replayGroup: null
+  };
+
+  /**
+   * @private
    * @type {ol.TileLoadFunctionType}
    */
   this.tileLoadFunction_ = tileLoadFunction;
+
+  /**
+   * @private
+   * @type {string}
+   */
+  this.url_ = src;
 
 };
 goog.inherits(ol.VectorTile, ol.Tile);
@@ -62,8 +101,7 @@ ol.VectorTile.prototype.getFormat = function() {
 
 
 /**
- * @inheritDoc
- * @api
+ * @return {Array.<ol.Feature>} Features.
  */
 ol.VectorTile.prototype.getFeatures = function() {
   return this.features_;
@@ -71,21 +109,39 @@ ol.VectorTile.prototype.getFeatures = function() {
 
 
 /**
- * @inheritDoc
+ * @return {ol.TileReplayState}
  */
-ol.VectorTile.prototype.getKey = function() {
-  return this.url;
+ol.VectorTile.prototype.getReplayState = function() {
+  return this.replayState_;
 };
 
 
 /**
- * @param {ol.tilegrid.TileGrid} tileGrid Tile grid.
- * @param {ol.proj.Projection} projection Projection.
+ * @inheritDoc
  */
-ol.VectorTile.prototype.load = function(tileGrid, projection) {
-  this.tileLoadFunction_(this, this.url);
-  this.loader_(tileGrid.getTileCoordExtent(this.tileCoord),
-      tileGrid.getResolution(this.tileCoord[0]), projection);
+ol.VectorTile.prototype.getKey = function() {
+  return this.url_;
+};
+
+
+/**
+ * @return {ol.proj.Projection} Projection.
+ */
+ol.VectorTile.prototype.getProjection = function() {
+  return this.projection_;
+};
+
+
+/**
+ * Load the tile.
+ */
+ol.VectorTile.prototype.load = function() {
+  if (this.state == ol.TileState.IDLE) {
+    this.state = ol.TileState.LOADING;
+    this.changed();
+    this.tileLoadFunction_(this, this.url_);
+    this.loader_(null, NaN, null);
+  }
 };
 
 
@@ -94,6 +150,16 @@ ol.VectorTile.prototype.load = function(tileGrid, projection) {
  */
 ol.VectorTile.prototype.setFeatures = function(features) {
   this.features_ = features;
+  this.state = ol.TileState.LOADED;
+  this.changed();
+};
+
+
+/**
+ * @param {ol.proj.Projection} projection Projection.
+ */
+ol.VectorTile.prototype.setProjection = function(projection) {
+  this.projection_ = projection;
 };
 
 

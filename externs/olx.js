@@ -3850,6 +3850,17 @@ olx.layer.VectorTileOptions.prototype.contrast;
 
 
 /**
+ * The buffer around the viewport extent used by the renderer when getting
+ * features from the vector source for the rendering or hit-detection.
+ * Recommended value: the size of the largest symbol, line width or label.
+ * Default is 100 pixels.
+ * @type {number|undefined}
+ * @api
+ */
+olx.layer.VectorTileOptions.prototype.renderBuffer;
+
+
+/**
  * Render order. Function to be used when sorting features before rendering. By
  * default features are drawn in the order that they are created. Use `null` to
  * avoid the sort, but get an undefined draw order.
@@ -3909,17 +3920,6 @@ olx.layer.VectorTileOptions.prototype.maxResolution;
  * @api
  */
 olx.layer.VectorTileOptions.prototype.opacity;
-
-
-/**
- * The buffer around the viewport extent used by the renderer when getting
- * features from the vector source for the rendering or hit-detection.
- * Recommended value: the size of the largest symbol, line width or label.
- * Default is 100 pixels.
- * @type {number|undefined}
- * @api
- */
-olx.layer.VectorTileOptions.prototype.renderBuffer;
 
 
 /**

@@ -203,6 +203,14 @@ ol.source.Tile.prototype.getTileGridForProjection = function(projection) {
 
 
 /**
+ * @return {number} Tile pixel ratio.
+ */
+ol.source.Tile.prototype.getTilePixelRatio = function() {
+  return this.tilePixelRatio_;
+};
+
+
+/**
  * @param {number} z Z.
  * @param {number} pixelRatio Pixel ratio.
  * @param {ol.proj.Projection} projection Projection.

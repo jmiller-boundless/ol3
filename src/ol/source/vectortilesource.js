@@ -33,6 +33,7 @@ ol.source.VectorTile = function(options) {
     tileGrid: options.tileGrid,
     tileLoadFunction: goog.isDef(options.tileLoadFunction) ?
         options.tileLoadFunction : ol.source.VectorTile.defaultTileLoadFunction,
+    tileUrlFunction: options.tileUrlFunction,
     tilePixelRatio: options.tilePixelRatio,
     wrapX: options.wrapX
   });
@@ -87,8 +88,8 @@ ol.source.VectorTile.prototype.getTile =
 
 /**
  * @param {ol.VectorTile} vectorTile Vector tile.
- * @param {string} src Source.
+ * @param {string} url URL.
  */
-ol.source.VectorTile.defaultTileLoadFunction = function(vectorTile, src) {
-  vectorTile.setLoader(ol.featureloader.xhr(src, vectorTile.getFormat()));
+ol.source.VectorTile.defaultTileLoadFunction = function(vectorTile, url) {
+  vectorTile.setLoader(ol.featureloader.tile(url, vectorTile.getFormat()));
 };

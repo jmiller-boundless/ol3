@@ -57,23 +57,6 @@ ol.Tile.prototype.changed = function() {
 
 
 /**
- * Get the HTML image element for this tile (may be a Canvas, Image, or Video).
- * @function
- * @param {Object=} opt_context Object.
- * @return {HTMLCanvasElement|HTMLImageElement|HTMLVideoElement} Image.
- */
-ol.Tile.prototype.getImage = goog.abstractMethod;
-
-
-/**
- * Get the features for this tile.
- * @function
- * @return {Array.<ol.Feature>} This tile's features.
- */
-ol.Tile.prototype.getFeatures = goog.abstractMethod;
-
-
-/**
  * @return {string} Key.
  */
 ol.Tile.prototype.getKey = function() {
